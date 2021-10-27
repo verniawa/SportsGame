@@ -6,8 +6,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour {
 
-    public float speed = 2f;
-    public float shootSpeed = 20f, chargeRate;
+    public float speed = 2f, shootSpeed = 20f, chargeRate;
     bool carrying;
     Rigidbody2D rigidbody;
     public Ball ball;
@@ -18,6 +17,8 @@ public class PlayerController : MonoBehaviour {
     LineRenderer lineRenderer;
     Controls controls;
     Vector2 moveVector;
+    Collider2D collider;
+    [SerializeField] private float shotCooldown;
     
 
     void Start(){
@@ -27,17 +28,27 @@ public class PlayerController : MonoBehaviour {
         shotAngleGuides = new Vector3[3];
         controls = new Controls();
         controls.Enable();
+        collider = GetComponent<Collider2D>();
+        if (ball == null){
+            ball = FindObjectOfType<Ball>();
+        }
+        if (goal == null){
+            goal = GameObject.FindGameObjectWithTag("Goal").transform;
+        }
     }
 
+    public void OnMove(InputAction.CallbackContext context){
+        moveVector = context.ReadValue<Vector2>();
+    }
 
     void Update(){
-        Vector2 positionDelta = controls.Game.Move.ReadValue<Vector2>().normalized * speed * Time.deltaTime;
+        Vector2 positionDelta = moveVector * speed * Time.deltaTime;
 
 
         rigidbody.position += positionDelta;
 
         goalDirection = (goal.transform.position - transform.position).normalized;
-        Debug.DrawRay(transform.position, goalDirection, Color.black, .1f);
+        // Debug.DrawRay(transform.position, goalDirection, Color.black, .1f);
 
         float distance = Vector2.Distance(transform.position, ball.transform.position);
         if (carrying){
@@ -68,10 +79,14 @@ public class PlayerController : MonoBehaviour {
         lineRenderer.SetPositions(shotAngleGuides);
     }
 
-    
+    public void OnShoot(InputAction.CallbackContext context){
+        Debug.Log(context.ReadValueAsButton());
+        Debug.Log(context.canceled);
+    }    
 
     void shoot(Vector2 minAngle, Vector2 maxAngle){
         if (carrying){
+            ball.transform.position = transform.position + (Vector3) goalDirection * .2f;
             float shotAngle = Random.value;
             
 
@@ -83,6 +98,9 @@ public class PlayerController : MonoBehaviour {
             ball.pickedUp = false;
             ball.transform.parent = null;
             carrying = false;
+
+            collider.isTrigger = true;
+            StartCoroutine(cooldown());
         }
     }
     
@@ -96,8 +114,9 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
-    // public void OnMove(InputAction.CallbackContext value){
-    //     moveVector = value.ReadValue;
-    // }
+    IEnumerator cooldown(){
+        yield return new WaitForSeconds(shotCooldown);
+        collider.isTrigger = false;
+    }
     
 }

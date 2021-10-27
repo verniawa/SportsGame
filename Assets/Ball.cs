@@ -15,7 +15,7 @@ public class Ball : MonoBehaviour {
     }
 
 
-    void Update(){
+    void FixedUpdate(){
         if (pickedUp){
             rigidbody.position = transform.parent.position;
         }
