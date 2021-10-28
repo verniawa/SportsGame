@@ -8,18 +8,21 @@ public class Ball : MonoBehaviour {
     Rigidbody2D rigidbody;
     Vector2 startingPosition;
     Collider2D collider;
+    TrailRenderer trailRenderer;
 
     void Start(){
         pickedUp = false;
         rigidbody = GetComponent<Rigidbody2D>();
         startingPosition = transform.position;
         collider = GetComponent<Collider2D>();
+        trailRenderer = GetComponent<TrailRenderer>();
     }
 
 
     void FixedUpdate(){
         if (pickedUp){
             rigidbody.position = transform.parent.position;
+            trailRenderer.emitting = false;
         }
     }
 
@@ -35,11 +38,15 @@ public class Ball : MonoBehaviour {
         transform.parent = null;
         pickedUp = false;
         Physics2D.IgnoreCollision(collider, player.GetComponent<Collider2D>(), false);
+        trailRenderer.emitting = true;
     }
 
     private void OnCollisionEnter2D(Collision2D other) {
         if (other.gameObject.layer == LayerMask.NameToLayer("Goal")){
+            trailRenderer.emitting = false;
             transform.position = startingPosition;
+            rigidbody.velocity = Vector2.zero;
+            other.gameObject.GetComponent<Goal>().scoreGoal();
         }
     }
 }
