@@ -7,11 +7,13 @@ public class Ball : MonoBehaviour {
     public bool pickedUp;
     Rigidbody2D rigidbody;
     Vector2 startingPosition;
+    Collider2D collider;
 
     void Start(){
         pickedUp = false;
         rigidbody = GetComponent<Rigidbody2D>();
         startingPosition = transform.position;
+        collider = GetComponent<Collider2D>();
     }
 
 
@@ -25,6 +27,14 @@ public class Ball : MonoBehaviour {
         pickedUp = true;
         transform.SetParent(player.transform);
         rigidbody.velocity = Vector2.zero;
+        Physics2D.IgnoreCollision(collider, player.GetComponent<Collider2D>(), true);
+    }
+
+    public void shoot(GameObject player, Vector2 force){
+        rigidbody.AddForce(force, ForceMode2D.Impulse);
+        transform.parent = null;
+        pickedUp = false;
+        Physics2D.IgnoreCollision(collider, player.GetComponent<Collider2D>(), false);
     }
 
     private void OnCollisionEnter2D(Collision2D other) {
@@ -32,5 +42,4 @@ public class Ball : MonoBehaviour {
             transform.position = startingPosition;
         }
     }
-
 }

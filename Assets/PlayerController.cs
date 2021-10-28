@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour {
 
     public float speed = 2f, shootSpeed = 20f, chargeRate;
-    bool carrying;
+    bool carrying, charging;
     Rigidbody2D rigidbody;
     public Ball ball;
     public Transform goal;
@@ -18,7 +18,7 @@ public class PlayerController : MonoBehaviour {
     Controls controls;
     Vector2 moveVector;
     Collider2D collider;
-    [SerializeField] private float shotCooldown;
+    private float shotCooldown = .2f;
     
 
     void Start(){
@@ -45,16 +45,15 @@ public class PlayerController : MonoBehaviour {
         Vector2 positionDelta = moveVector * speed * Time.deltaTime;
 
 
-        rigidbody.position += positionDelta;
+        rigidbody.velocity = moveVector * speed;
 
         goalDirection = (goal.transform.position - transform.position).normalized;
-        // Debug.DrawRay(transform.position, goalDirection, Color.black, .1f);
 
         float distance = Vector2.Distance(transform.position, ball.transform.position);
         if (carrying){
             Vector2 minAngle = Vector2.Lerp(Vector2.Perpendicular(goalDirection).normalized, goalDirection, charge).normalized;
             Vector2 maxAngle = Vector2.Lerp(Vector2.Perpendicular(- goalDirection).normalized, goalDirection, charge).normalized;
-            if (controls.Game.Shoot.ReadValue<float>() > 0){
+            if (charging){
                 if (charge < 1){
                     charge += chargeRate * Time.deltaTime;
                 }
@@ -65,23 +64,20 @@ public class PlayerController : MonoBehaviour {
                 shotAngleGuides[0] = transform.position;
                 shotAngleGuides[2] = transform.position;
             }
-            if (!(controls.Game.Shoot.ReadValue<float>() > 0) && charge > 0){
+            if (!(charging) && charge > 0){
                 shoot(minAngle, maxAngle);
             }
         } else{
             charge = 0f;
-                
             shotAngleGuides[0] = transform.position;
             shotAngleGuides[2] = transform.position;
-            
         }
         shotAngleGuides[1] = transform.position;
         lineRenderer.SetPositions(shotAngleGuides);
     }
 
     public void OnShoot(InputAction.CallbackContext context){
-        Debug.Log(context.ReadValueAsButton());
-        Debug.Log(context.canceled);
+        charging = context.ReadValueAsButton();
     }    
 
     void shoot(Vector2 minAngle, Vector2 maxAngle){
@@ -89,14 +85,10 @@ public class PlayerController : MonoBehaviour {
             ball.transform.position = transform.position + (Vector3) goalDirection * .2f;
             float shotAngle = Random.value;
             
-
             Vector2 direction = Vector2.Lerp(minAngle, maxAngle, shotAngle).normalized;
             Debug.DrawRay(transform.position, direction * 3, Color.red, 1f);
-
-            Rigidbody2D ballRB = ball.GetComponent<Rigidbody2D>();
-            ballRB.AddForce(direction * (shootSpeed * charge + shootSpeed), ForceMode2D.Impulse);
-            ball.pickedUp = false;
-            ball.transform.parent = null;
+            
+            ball.shoot(this.gameObject, direction * (shootSpeed * charge + shootSpeed));
             carrying = false;
 
             collider.isTrigger = true;
