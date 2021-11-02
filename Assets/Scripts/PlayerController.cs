@@ -22,18 +22,33 @@ public class PlayerController : MonoBehaviour {
     
 
     void Start(){
-        rigidbody = GetComponent<Rigidbody2D>();
         carrying = false;
-        lineRenderer = GetComponent<LineRenderer>();
         shotAngleGuides = new Vector3[3];
         controls = new Controls();
         controls.Enable();
-        collider = GetComponent<Collider2D>();
-        if (ball == null){
-            ball = FindObjectOfType<Ball>();
-        }
+        
         if (goal == null){
             goal = GameObject.FindGameObjectWithTag("Goal").transform;
+        }
+        initialize();
+    }
+
+    private void Reset() {
+        initialize();
+    }
+
+    private void initialize(){
+        if (rigidbody == null){
+            rigidbody = GetComponent<Rigidbody2D>();
+        }
+        if (lineRenderer == null){
+            lineRenderer = GetComponent<LineRenderer>();
+        }
+        if (collider == null){
+            collider = GetComponent<Collider2D>();
+        }
+        if (ball == null){
+            ball = FindObjectOfType<Ball>();
         }
     }
 

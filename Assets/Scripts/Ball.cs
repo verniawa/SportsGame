@@ -10,12 +10,27 @@ public class Ball : MonoBehaviour {
     Collider2D collider;
     TrailRenderer trailRenderer;
 
+
     void Start(){
         pickedUp = false;
-        rigidbody = GetComponent<Rigidbody2D>();
         startingPosition = transform.position;
-        collider = GetComponent<Collider2D>();
-        trailRenderer = GetComponent<TrailRenderer>();
+        initialize();
+    }
+    private void Reset() {
+        initialize();
+    }
+
+    private void initialize(){
+        if (rigidbody == null){
+            rigidbody = GetComponent<Rigidbody2D>();
+        }
+        if (collider == null){
+            collider = GetComponent<Collider2D>();
+        }
+        if (trailRenderer == null){
+            trailRenderer = GetComponent<TrailRenderer>();
+        }
+
     }
 
 

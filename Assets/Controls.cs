@@ -200,6 +200,17 @@ public class @Controls : IInputActionCollection, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""1502a4ff-9b4a-46cb-a0ea-1df15347797e"",
+                    ""path"": ""<HID::DragonRise Inc.   Generic   USB  Joystick  >/button2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Shoot"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""a0927d6d-4444-445c-8d89-4751bd5b8168"",
                     ""path"": ""<Gamepad>/rightStick"",
                     ""interactions"": """",
